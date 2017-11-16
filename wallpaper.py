@@ -123,25 +123,28 @@ def change_node_text(nodelist, text, is_add=False, is_delete=False):
 def write_xml(tree, out_path):  
 	tree.write(out_path, encoding="utf-8",xml_declaration=True)  
 
-if __name__ == "__main__":	
-	
-	#os.chmod("/usr/share/backgrounds/f21/default/f21.xml", stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
+def loopreadconf():
 	load_dict = readconf(current_user_name+"/.wallpaper.conf")
-	count = 0
-	while(count < len(load_dict['directorys'])):
-        	if( str(load_dict['directorys'][count]['type']) == "directory"):
-                	directory = load_dict['directorys'][count]['value']
-                	readLocalFile(str(directory));
-        	elif( str(load_dict['directorys'][count]['type']) == "url"):
-			mkdir_ftp(datapath)
-                	url = load_dict['directorys'][count]['value']
-                	compile_rule = re.compile(r'\d+[\.]\d+[\.]\d+[\.]\d+')
-                	ftp_address_list = re.findall(compile_rule, url)
-                	ftp_address = ftp_address_list[0]
-                	directory_include = url.split('.')[-1]
-                	directory_ftp = directory_include[directory_include.index("/")+1:len(directory_include)]
-                	readFtpFile(ftp_address,directory_ftp);
-        	count = count+1
-		if count == len(load_dict['directorys'])-1:
-			count = 0
+        count = 0
+        while(count < len(load_dict['directorys'])):
+                if( str(load_dict['directorys'][count]['type']) == "directory"):
+                        directory = load_dict['directorys'][count]['value']
+                        readLocalFile(str(directory));
+                elif( str(load_dict['directorys'][count]['type']) == "url"):
+                        mkdir_ftp(datapath)
+                        url = load_dict['directorys'][count]['value']
+                        compile_rule = re.compile(r'\d+[\.]\d+[\.]\d+[\.]\d+')
+                        ftp_address_list = re.findall(compile_rule, url)
+                        ftp_address = ftp_address_list[0]
+                        directory_include = url.split('.')[-1]
+                        directory_ftp = directory_include[directory_include.index("/")+1:len(directory_include)]
+                        readFtpFile(ftp_address,directory_ftp);
+                if count == len(load_dict['directorys'])-1:
+                        loopreadconf()
+		count = count + 1
+
+
+if __name__ == "__main__":	
+
+	loopreadconf();	
 
