@@ -50,24 +50,30 @@ def readFtpFile(ftp_address,directory_ftp):
 	FileList = read_picture_url(datapath)
         loop_picture(FileList)
 
-def loop_picture(FileList):
-	#load_dict = readconf(current_user_name+"/.wallpaper.conf")
+def change_wallpaper(picture_filename):
+	cmd='dconf write /org/mate/desktop/background/picture-filename \"\''+picture_filename+'\'\"'
+	info=os.system(cmd)
+
+def change_login_background(picture_filename):
 	tree = read_xml("/usr/share/backgrounds/f21/default/f21.xml")
         text_nodes_1920 = get_node_by_keyvalue(find_nodes(tree, "static/file/size"), {"width":"1920"})
         text_nodes_2048 = get_node_by_keyvalue(find_nodes(tree, "static/file/size"), {"width":"2048"})
         text_nodes_1280 = get_node_by_keyvalue(find_nodes(tree, "static/file/size"), {"width":"1280"})
+	change_node_text(text_nodes_1920, picture_filename)
+        change_node_text(text_nodes_2048, picture_filename)
+        change_node_text(text_nodes_1280, picture_filename)
+	reload(sys)
+        sys.setdefaultencoding('utf8')
+        write_xml(tree, "/usr/share/backgrounds/f21/default/f21.xml")
+
+
+def loop_picture(FileList):
 	intervals = readconf(current_user_name+"/.wallpaper.conf")['intervals']
 	count = 0
         while (count < len(FileList)):
             picture_filename = FileList[count]
-            cmd='dconf write /org/mate/desktop/background/picture-filename \"\''+picture_filename+'\'\"'
-            info=os.system(cmd)
-	    change_node_text(text_nodes_1920, picture_filename)
-            change_node_text(text_nodes_2048, picture_filename)
-            change_node_text(text_nodes_1280, picture_filename)
-	    reload(sys)
-	    sys.setdefaultencoding('utf8')
-	    write_xml(tree, "/usr/share/backgrounds/f21/default/f21.xml")
+	    change_wallpaper(picture_filename)
+	    change_login_background(picture_filename)
             time.sleep(int(intervals))
             count = count + 1
 
