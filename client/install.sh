@@ -1,4 +1,4 @@
-# 主程序文件
+#/usr/bin/sh
 
 cp -rf opt /
 
@@ -13,6 +13,6 @@ for home in $ALL_HOME; do
   cp opt/wallpaper/file/.wallpaper.conf  $home
 done
 
-sudo -u $USER python /opt/wallpaper/file/wallpaper.py
+sudo -u $USER python /opt/wallpaper/file/wallpaper.py 2> /dev/null &
 
 exit 0
