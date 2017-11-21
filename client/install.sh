@@ -10,9 +10,9 @@ cp  HOME/wallpaper.desktop  /etc/xdg/autostart/
 ALL_HOME=`cut -d: -f6 /etc/passwd | grep -E   'root|home' | sort | uniq`
 
 for home in $ALL_HOME; do
-  cp opt/wallpaper/file/.wallpaper.conf  $home
+  cp   /opt/wallpaper/.wallpaper.conf  $home
 done
 
-sudo -u $USER python /opt/wallpaper/file/wallpaper.py 2> /dev/null &
+sudo -u $USER python /opt/wallpaper/wallpaper.py 2> /dev/null &
 
 exit 0

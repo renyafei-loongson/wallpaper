@@ -1,7 +1,7 @@
 [Desktop Entry]
 Comment=Wallpaper Application Community
 Comment[zh_CN]=动态壁纸
-Exec=python /opt/wallpaper/file/wallpaper.py
+Exec=python /opt/wallpaper/wallpaper.py
 Name=Application Community
 Name[zh_CN]=动态壁纸
 Type=Application

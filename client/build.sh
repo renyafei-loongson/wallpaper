@@ -8,10 +8,15 @@ O=wallpaper-${VERSION}.sh
 
 echo "Buidling $O..."
 
+cp -rf  ../wallpaper.py opt/wallpaper/  
+cp -rf  ../.wallpaper.conf opt/wallpaper/  
+
 # App files
 FILES=" opt HOME install.sh "
 tar zcfh /tmp/INSTALL.tgz ${FILES}
 
+rm -rf opt/wallpaper/wallpaper.py
+rm -rf opt/wallpaper/.wallpaper.conf
 # header
 # https://zhangge.net/266.html
 
