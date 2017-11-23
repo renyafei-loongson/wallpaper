@@ -7,19 +7,22 @@ import socket
 import getpass
 import re 
 import json
+import signal
 from xml.etree.ElementTree import ElementTree,Element 
 
 current_user_name = os.path.expanduser('~')
+
+CHANGE_SIGN_CONFIG = 0
+
+IF_BREAK = 0
 
 def readconf(conf_path):
         with open(conf_path,"r") as load_f:
             load_dict = json.load(load_f)
         return load_dict
 
-#load_dict = readconf(current_user_name+"/.wallpaper.conf")
-#intervals = load_dict['intervals']
-
-datapath = current_user_name+"/picture_ftp/"
+def get_datapath(current_user_name):
+	return current_user_name+"/picture_ftp/"
 
 def mkdir_ftp(datapath):
 	flag = False
@@ -40,7 +43,7 @@ def readFtpFile(ftp_address,directory_ftp):
 	FileList_ftp = ftp.nlst()
         count = 0
 	imageListfrom_ftp = []
-
+	datapath = get_datapath(current_user_name)
 	while (count < len(FileList_ftp)):
     		picture_filename = FileList_ftp[count]
     		localpath = datapath+picture_filename
@@ -71,11 +74,17 @@ def loop_picture(FileList):
 	intervals = readconf(current_user_name+"/.wallpaper.conf")['intervals']
 	count = 0
         while (count < len(FileList)):
-            picture_filename = FileList[count]
-	    change_wallpaper(picture_filename)
-	    change_login_background(picture_filename)
-            time.sleep(int(intervals))
-            count = count + 1
+	    global CHANGE_SIGN_CONFIG
+	    global IF_BREAK
+	    if(CHANGE_SIGN_CONFIG == 1):
+		IF_BREAK = 1
+	        break;
+	    else:
+            	picture_filename = FileList[count]
+	    	change_wallpaper(picture_filename)
+	    	change_login_background(picture_filename)
+            	time.sleep(int(intervals))
+            	count = count + 1
 
 def read_picture_url(datapath):
 	FileList = []
@@ -129,6 +138,16 @@ def change_node_text(nodelist, text, is_add=False, is_delete=False):
 def write_xml(tree, out_path):  
 	tree.write(out_path, encoding="utf-8",xml_declaration=True)  
 
+
+def change_by_signal():
+	global IF_BREAK
+        global CHANGE_SIGN_CONFIG
+        if(IF_BREAK == 1):
+        	CHANGE_SIGN_CONFIG = 0
+		IF_BREAK = 0
+                loopreadconf()
+
+
 def loopreadconf():
 	load_dict = readconf(current_user_name+"/.wallpaper.conf")
         count = 0
@@ -136,7 +155,10 @@ def loopreadconf():
                 if( str(load_dict['directorys'][count]['type']) == "directory"):
                         directory = load_dict['directorys'][count]['value']
                         readLocalFile(str(directory));
+			change_by_signal()
+
                 elif( str(load_dict['directorys'][count]['type']) == "url"):
+			datapath= get_datapath(current_user_name)
                         mkdir_ftp(datapath)
                         url = load_dict['directorys'][count]['value']
                         compile_rule = re.compile(r'\d+[\.]\d+[\.]\d+[\.]\d+')
@@ -145,12 +167,19 @@ def loopreadconf():
                         directory_include = url.split('.')[-1]
                         directory_ftp = directory_include[directory_include.index("/")+1:len(directory_include)]
                         readFtpFile(ftp_address,directory_ftp);
+			change_by_signal()
+
                 if count == len(load_dict['directorys'])-1:
                         loopreadconf()
 		count = count + 1
 
 
-if __name__ == "__main__":	
+def myHandler(signum, frame):
+	global CHANGE_SIGN_CONFIG
+	CHANGE_SIGN_CONFIG = 1
 
+if __name__ == "__main__":	
+	signal.signal(signal.SIGUSR1,myHandler)
 	loopreadconf();	
+
 
